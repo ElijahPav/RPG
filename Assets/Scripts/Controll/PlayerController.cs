@@ -1,4 +1,5 @@
 using RPG.Combat;
+using RPG.Core;
 using RPG.Movement;
 using UnityEngine;
 
@@ -9,19 +10,22 @@ namespace RPG.Comtrol
         [SerializeField] private Mover _mover;
         [SerializeField] private Fighter _fighter;
 
+        private Health _health;
         private Camera _mainCamera;
         private Ray GetMouseRay() => _mainCamera.ScreenPointToRay(Input.mousePosition);
 
         void Start()
         {
+            _health = GetComponent<Health>();
             _mainCamera = Camera.main;
         }
         void Update()
         {
-            if (InteractWithCombat()) return;
+            if (_health.IsDead) { return; }
 
+            if (InteractWithCombat()) { return; }
 
-            if (InteractWithMovement()) return;
+            if (InteractWithMovement()) { return; }
 
 
             Debug.Log("Nothing to do");
@@ -34,7 +38,7 @@ namespace RPG.Comtrol
                 var target = hit.transform.GetComponent<CombatTarget>();
                 if (target != null && _fighter.CanAttack(target.gameObject))
                 {
-                    if (Input.GetMouseButtonDown(1))
+                    if (Input.GetMouseButton(1))
                     {
                         _fighter.Attack(target.gameObject);
                         Debug.Log("Attack");
@@ -53,7 +57,6 @@ namespace RPG.Comtrol
                 if (Input.GetMouseButton(1))
                 {
                     _mover.StartMoveAction(hit.point);
-                    Debug.Log("Move");
                 }
                 return true;
             }
